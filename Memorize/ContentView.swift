@@ -7,20 +7,97 @@
 
 import SwiftUI
 
+
+
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+    var emojis:[String] = ["🚗","🚀","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛺","🚔","🚍","🛵","🚲","🛴","🚖","🚡","🚠","🚞" ]
+    @State var emojiCount = 4;
+    func addEmojiHandler () -> Void {
+        if emojiCount < 24 {
+            emojiCount += 1
         }
-        .padding()
+    }
+    func removeEmojiHandler () -> Void {
+        if(emojiCount >= 0){
+            emojiCount -= 1;
+        }
+    }
+    var body: some View {
+        
+        VStack {
+            HStack {
+                ForEach(emojis.indices[0..<emojiCount],id:\.self){ index in
+                    CardView(content: emojis[index], isFaceUp: false)
+                }
+            }
+            Spacer(minLength: 10)
+            HStack{
+                SymbolBtn(action: removeEmojiHandler, labelName: "minus.circle")
+                Spacer()
+                SymbolBtn(action: addEmojiHandler, labelName: "plus.circle")
+            }
+            .padding(.horizontal)
+            .font(.largeTitle)
+        }
+        .foregroundColor(.red)
+        .padding(.horizontal)
+        
+       
+      
+    }
+}
+
+struct CardView: View {
+    @State var content: String?
+    @State var isFaceUp:Bool
+    var body: some View {
+        /*
+         Zstack is a function and its last parameter content is
+         a closure funtion. So, we can pass the closure parameter like
+         this
+         Zstack() {
+         }
+         instead of
+         ZStack (content: {
+         } )
+         */
+        ZStack {
+            let shape = RoundedRectangle(cornerRadius: 20)
+            if isFaceUp {
+                shape.fill(.white)
+               shape.stroke(lineWidth: 3)
+                Text(content!).font(.largeTitle).foregroundColor(.orange)
+                    
+            }else{
+               shape.fill(.red)
+            }
+        }
+        /*
+         View modifiers of View combiners like Zstack has effect on
+         elements inside of it.
+         */
+        .onTapGesture {
+             isFaceUp = !isFaceUp
+        }
+       
+    }
+}
+
+struct SymbolBtn: View {
+    var action: () -> Void;
+    var labelName: String?
+    var body: some View {
+        Button(action:{action()}, label: {
+            Image(systemName: labelName!)
+        })
+      
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView().preferredColorScheme(.dark)
+        ContentView().previewInterfaceOrientation(.portrait).preferredColorScheme(.light)
+            
     }
 }
