@@ -18,17 +18,21 @@ struct ContentView: View {
         }
     }
     func removeEmojiHandler () -> Void {
-        if(emojiCount >= 0){
+        if(emojiCount > 1){
             emojiCount -= 1;
         }
     }
     var body: some View {
         
         VStack {
-            HStack {
-                ForEach(emojis.indices[0..<emojiCount],id:\.self){ index in
-                    CardView(content: emojis[index], isFaceUp: false)
+            ScrollView(showsIndicators: false){
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+                    ForEach(emojis.indices[0..<emojiCount],id:\.self){ index in
+                        CardView(content: emojis[index], isFaceUp: true)
+                            .aspectRatio(2/3, contentMode: .fit)
+                    }
                 }
+                .foregroundColor(.red)
             }
             Spacer(minLength: 10)
             HStack{
@@ -39,7 +43,6 @@ struct ContentView: View {
             .padding(.horizontal)
             .font(.largeTitle)
         }
-        .foregroundColor(.red)
         .padding(.horizontal)
         
        
@@ -65,7 +68,7 @@ struct CardView: View {
             let shape = RoundedRectangle(cornerRadius: 20)
             if isFaceUp {
                 shape.fill(.white)
-               shape.stroke(lineWidth: 3)
+               shape.strokeBorder(lineWidth: 3)
                 Text(content!).font(.largeTitle).foregroundColor(.orange)
                     
             }else{
