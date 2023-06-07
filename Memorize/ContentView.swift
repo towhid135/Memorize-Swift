@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Memorize
-//
-//  Created by Bayshore Communication on 5/6/23.
-//
-
 import SwiftUI
 
 
@@ -68,13 +61,14 @@ struct CardView: View {
             let shape = RoundedRectangle(cornerRadius: 20)
             if isFaceUp {
                 shape.fill(.white)
-               shape.strokeBorder(lineWidth: 3)
+                shape.strokeBorder(lineWidth: 3)
                 Text(content!).font(.largeTitle).foregroundColor(.orange)
-                    
+
             }else{
                shape.fill(.red)
             }
         }
+        
         /*
          View modifiers of View combiners like Zstack has effect on
          elements inside of it.
