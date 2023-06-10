@@ -3,38 +3,23 @@ import SwiftUI
 
 
 struct ContentView: View {
-    var emojis:[String] = ["🚗","🚀","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛺","🚔","🚍","🛵","🚲","🛴","🚖","🚡","🚠","🚞" ]
-    @State var emojiCount = 4;
-    func addEmojiHandler () -> Void {
-        if emojiCount < 24 {
-            emojiCount += 1
-        }
-    }
-    func removeEmojiHandler () -> Void {
-        if(emojiCount > 1){
-            emojiCount -= 1;
-        }
-    }
+    @ObservedObject var viewModel:EmojiMemoryGame
+    
     var body: some View {
-        
         VStack {
             ScrollView(showsIndicators: false){
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    ForEach(emojis.indices[0..<emojiCount],id:\.self){ index in
-                        CardView(content: emojis[index], isFaceUp: true)
+                    ForEach(viewModel.cards){ card in
+                        CardView(card: card)
                             .aspectRatio(2/3, contentMode: .fit)
+                            .onTapGesture {
+                                viewModel.choose(card)
+                            }
                     }
                 }
                 .foregroundColor(.red)
             }
-            Spacer(minLength: 10)
-            HStack{
-                SymbolBtn(action: removeEmojiHandler, labelName: "minus.circle")
-                Spacer()
-                SymbolBtn(action: addEmojiHandler, labelName: "plus.circle")
-            }
-            .padding(.horizontal)
-            .font(.largeTitle)
+        
         }
         .padding(.horizontal)
         
@@ -44,8 +29,7 @@ struct ContentView: View {
 }
 
 struct CardView: View {
-    @State var content: String?
-    @State var isFaceUp:Bool
+    let card: MemoryGame<String>.Card
     var body: some View {
         /*
          Zstack is a function and its last parameter content is
@@ -59,10 +43,10 @@ struct CardView: View {
          */
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp {
+            if card.isFaceUp {
                 shape.fill(.white)
                 shape.strokeBorder(lineWidth: 3)
-                Text(content!).font(.largeTitle).foregroundColor(.orange)
+                Text(card.content).font(.largeTitle).foregroundColor(.orange)
 
             }else{
                shape.fill(.red)
@@ -73,9 +57,7 @@ struct CardView: View {
          View modifiers of View combiners like Zstack has effect on
          elements inside of it.
          */
-        .onTapGesture {
-             isFaceUp = !isFaceUp
-        }
+      
        
     }
 }
@@ -93,8 +75,9 @@ struct SymbolBtn: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().preferredColorScheme(.dark)
-        ContentView().previewInterfaceOrientation(.portrait).preferredColorScheme(.light)
+        let game = EmojiMemoryGame()
+        ContentView(viewModel:game).preferredColorScheme(.dark)
+        ContentView(viewModel:game).previewInterfaceOrientation(.portrait).preferredColorScheme(.light)
             
     }
 }
