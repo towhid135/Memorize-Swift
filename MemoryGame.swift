@@ -2,9 +2,10 @@
 import Foundation
 
 
-struct MemoryGame<CardContent> {
+struct MemoryGame<CardContent> where CardContent:Equatable {
     //read only
     private(set) var cards: Array<Card>
+    private var indexOfTheOneAndOnlyFaceUpCard:Int?
     
     mutating func choose(_ card: Card) -> Void {
         /*
@@ -12,22 +13,29 @@ struct MemoryGame<CardContent> {
          and we can't modify a let
          */
 //        card.isFaceUp.toggle()
-        
-        let chosenIndex:Int = index(of: card)
-        cards[chosenIndex].isFaceUp.toggle()
-        
-      
-       
-        print("cards: \(cards)")
-    }
-    
-    func index(of card: Card) -> Int {
-        for index in 0..<cards.count{
-            if(cards[index].id == card.id){
-                return index
+        /*
+         If a closure function takes one arguments we can replace it with $0 and we don't need the "in" keyword.
+         Fore more arguments we can use $0,$1,$2 etc
+         */
+        if let chosenIndex:Int = cards.firstIndex(where: {$0.id == card.id}), !cards[chosenIndex].isFaceUp, !cards[chosenIndex].isMatched {
+            if let potentialMatchIndex = indexOfTheOneAndOnlyFaceUpCard{
+                if cards[potentialMatchIndex].content == cards[chosenIndex].content{
+                    cards[potentialMatchIndex].isMatched = true
+                    cards[chosenIndex].isMatched = true
+                }
+                indexOfTheOneAndOnlyFaceUpCard = nil
+            }else{
+                for index in cards.indices {
+                    cards[index].isFaceUp = false
+                }
+                indexOfTheOneAndOnlyFaceUpCard = chosenIndex
             }
+            cards[chosenIndex].isFaceUp.toggle()
+            
+        }else{
+            print("Card not found!")
         }
-        return 0 //bogus
+       
     }
     
     init (numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
@@ -40,7 +48,7 @@ struct MemoryGame<CardContent> {
     }
     
     struct Card:Identifiable {
-        var isFaceUp:Bool = true
+        var isFaceUp:Bool = false
         var isMatched:Bool = false
         var content: CardContent
         var id: Int
