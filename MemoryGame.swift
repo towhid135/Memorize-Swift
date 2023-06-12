@@ -5,7 +5,15 @@ import Foundation
 struct MemoryGame<CardContent> where CardContent:Equatable {
     //read only
     private(set) var cards: Array<Card>
-    private var indexOfTheOneAndOnlyFaceUpCard:Int?
+    private var indexOfTheOneAndOnlyFaceUpCard:Int? {
+        get {  cards.indices.filter({cards[$0].isFaceUp }).oneAndOnly  }
+        
+        /*
+         During setting the value of indexOfTheOneAndOnlyFaceUpCard, the set function receives the given value in
+         "newValue" props
+         */
+        set { cards.indices.forEach({cards[$0].isFaceUp = ($0 == newValue)}) }
+    }
     
     mutating func choose(_ card: Card) -> Void {
         /*
@@ -23,14 +31,12 @@ struct MemoryGame<CardContent> where CardContent:Equatable {
                     cards[potentialMatchIndex].isMatched = true
                     cards[chosenIndex].isMatched = true
                 }
-                indexOfTheOneAndOnlyFaceUpCard = nil
+                cards[chosenIndex].isFaceUp.toggle()
             }else{
-                for index in cards.indices {
-                    cards[index].isFaceUp = false
-                }
+               
                 indexOfTheOneAndOnlyFaceUpCard = chosenIndex
             }
-            cards[chosenIndex].isFaceUp.toggle()
+            
             
         }else{
             print("Card not found!")
@@ -39,7 +45,7 @@ struct MemoryGame<CardContent> where CardContent:Equatable {
     }
     
     init (numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
-        cards = Array<Card>();
+        cards = [];
         for pairIndex in 0 ..< numberOfPairsOfCards {
             let content = createCardContent(pairIndex)
             cards.append(Card(content: content,id: pairIndex * 2))
@@ -50,7 +56,17 @@ struct MemoryGame<CardContent> where CardContent:Equatable {
     struct Card:Identifiable {
         var isFaceUp:Bool = false
         var isMatched:Bool = false
-        var content: CardContent
-        var id: Int
+        let content: CardContent
+        let id: Int
+    }
+}
+
+extension Array {
+    var oneAndOnly:Element? {
+        if self.count == 1 {
+            return first
+        }else{
+            return nil
+        }
     }
 }
