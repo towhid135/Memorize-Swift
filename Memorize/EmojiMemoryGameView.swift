@@ -8,14 +8,12 @@ struct EmojiMemoryGameView: View {
     var body: some View {
         VStack {
             ScrollView(showsIndicators: false){
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    ForEach(gameViewModel.cards){ card in
-                        CardView(card: card)
-                            .aspectRatio(2/3, contentMode: .fit)
-                            .onTapGesture {
-                                gameViewModel.choose(card)
-                            }
-                    }
+                AspectVGrid(items: gameViewModel.cards, aspectRatio: 2/3){ card in
+                    CardView(card: card)
+                        .padding(4)
+                        .onTapGesture {
+                            gameViewModel.choose(card)
+                        }
                 }
                 .foregroundColor(.red)
                
@@ -74,22 +72,12 @@ struct CardView: View {
     }
     
     private struct DrawingConstants {
-        static let cornerRadius: CGFloat = 20
+        static let cornerRadius: CGFloat = 10
         static let lineWidth: CGFloat = 3
-        static let fontScale:CGFloat = 0.8
+        static let fontScale:CGFloat = 0.75
     }
 }
 
-struct SymbolBtn: View {
-    var action: () -> Void;
-    var labelName: String?
-    var body: some View {
-        Button(action:{action()}, label: {
-            Image(systemName: labelName!)
-        })
-      
-    }
-}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
