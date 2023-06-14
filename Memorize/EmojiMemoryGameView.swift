@@ -7,17 +7,21 @@ struct EmojiMemoryGameView: View {
     
     var body: some View {
         VStack {
-            ScrollView(showsIndicators: false){
+            
                 AspectVGrid(items: gameViewModel.cards, aspectRatio: 2/3){ card in
-                    CardView(card: card)
-                        .padding(4)
-                        .onTapGesture {
-                            gameViewModel.choose(card)
-                        }
+                    if card.isMatched && !card.isFaceUp {
+                        Rectangle().opacity(0)
+                    }else{
+                        CardView(card: card)
+                            .padding(4)
+                            .onTapGesture {
+                                gameViewModel.choose(card)
+                            }
+                    }
                 }
                 .foregroundColor(.red)
                
-            }
+            
         
         }
         .padding(.horizontal)
