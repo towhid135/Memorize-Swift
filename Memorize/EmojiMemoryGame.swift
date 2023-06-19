@@ -3,9 +3,9 @@ import SwiftUI
 
 class EmojiMemoryGame:ObservableObject {
     typealias Card = MemoryGame<String>.Card
-    private static var emojis:[String] = ["🚗","🚀","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛺","🚔","🚍","🛵","🚲","🛴","🚖","🚡","🚠","🚞" ]
+    private static var emojis:[String] = ["🛵","🚗","🚀","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛺","🚔","🚍","🚲","🛴","🚖","🚡","🚠","🚞" ]
     private static func createMemoryGame() -> MemoryGame<String> {
-        MemoryGame<String>(numberOfPairsOfCards: 16){ pairIndex in
+        MemoryGame<String>(numberOfPairsOfCards: 3){ pairIndex in
             emojis[pairIndex]
         }
     }
