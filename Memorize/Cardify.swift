@@ -10,7 +10,7 @@ struct Cardify: ViewModifier {
             if isFaceUp {
                 shape.fill(.white)
                 shape.strokeBorder(lineWidth: DrawingConstants.lineWidth)
-                content
+                
             }
             else if isMatched{
 //                shape.opacity(1)
@@ -19,7 +19,9 @@ struct Cardify: ViewModifier {
             else{
                shape.fill(.red)
             }
+            content.opacity(isFaceUp ? 1 : 0)
         }
+        .rotation3DEffect(Angle.degrees(isFaceUp ? 0 : 180), axis: (0,1,0))
     }
     
     private struct DrawingConstants {

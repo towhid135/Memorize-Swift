@@ -7,27 +7,38 @@ struct EmojiMemoryGameView: View {
     
     var body: some View {
         VStack {
-            
-                AspectVGrid(items: gameViewModel.cards, aspectRatio: 2/3){ card in
-                    if card.isMatched && !card.isFaceUp {
-                        Rectangle().opacity(0)
-                    }else{
-                        CardView(card: card)
-                            .padding(4)
-                            .onTapGesture {
-                                gameViewModel.choose(card)
-                            }
-                    }
-                }
-                .foregroundColor(.red)
-               
-            
-        
+            gameBody
+            shuffle
         }
         .padding(.horizontal)
         
        
       
+    }
+    
+    var gameBody: some View {
+        AspectVGrid(items: gameViewModel.cards, aspectRatio: 2/3){ card in
+            if card.isMatched && !card.isFaceUp {
+                Color.clear
+            }else{
+                CardView(card: card)
+                    .padding(4)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 2)){
+                            gameViewModel.choose(card)
+                        }
+                    }
+            }
+        }
+        .foregroundColor(.red)
+    }
+    
+    var shuffle: some View {
+        Button("Shuffle"){
+            withAnimation(.easeInOut(duration: 2)){
+                gameViewModel.shuffle()
+            }
+        }
     }
 }
 
@@ -47,11 +58,14 @@ struct CardView: View {
              */
             ZStack {
                     Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110-90)).opacity(0.5).padding(5)
-                    Text(card.content).font(font(in: geometry.size))
+                    Text(card.content)
                     .rotationEffect(Angle.degrees(card.isMatched ? 360 : 0))
                     .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
-                    .cardify(isFaceUp: card.isFaceUp, isMatched: card.isMatched)
+                    .font(Font.system(size: 32))
+                    .scaleEffect(scale(sizeThatFits: geometry.size))
+                    
             }
+            .cardify(isFaceUp: card.isFaceUp, isMatched: card.isMatched)
             
             /*
              View modifiers of View combiners like Zstack has effect on
@@ -63,12 +77,17 @@ struct CardView: View {
        
     }
     
+    private func scale(sizeThatFits size: CGSize) ->CGFloat {
+        return min(size.width,size.height) / (DrawingConstants.fontSize/DrawingConstants.fontScale)
+    }
+    
     private func font (in size: CGSize) -> Font {
         Font.system(size: min(size.width,size.height) * DrawingConstants.fontScale )
     }
     
     private struct DrawingConstants {
         static let fontScale:CGFloat = 0.65
+        static let fontSize:CGFloat = 32
     }
 }
 
