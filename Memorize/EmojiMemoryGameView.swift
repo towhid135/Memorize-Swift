@@ -7,15 +7,18 @@ struct EmojiMemoryGameView: View {
     @Namespace private var dealingNameSpace
     
     var body: some View {
-        VStack {
-            gameBody
+        ZStack(alignment: .bottom){
+            VStack {
+                gameBody
+                HStack{
+                    shuffle
+                    Spacer()
+                    reset
+                }
+            }
+            .padding(.horizontal)
             deckBody
-            shuffle
         }
-        .padding(.horizontal)
-        
-       
-      
     }
     
     @State private var dealt = Set<Int>()
@@ -28,6 +31,17 @@ struct EmojiMemoryGameView: View {
         !dealt.contains(card.id)
     }
     
+    private func zIndex(of card:EmojiMemoryGame.Card) -> Double {
+        /*
+         In zIndex the higher number will show the view in front and the
+         lower number will show the view in back. For example if card of the
+         0'th index has a zIndex value of 0 and the card of the 1'th index has
+         a zIndex value of -1 then the card of the 1'th index will be below the
+         card of the 0'th index.
+         */
+        -Double(gameViewModel.cards.firstIndex(where: {$0.id == card.id}) ?? 0)
+    }
+    
     var gameBody: some View {
         AspectVGrid(items: gameViewModel.cards, aspectRatio: 2/3){ card in
             if isUndeal(card) || card.isMatched && !card.isFaceUp {
@@ -37,7 +51,8 @@ struct EmojiMemoryGameView: View {
                     .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
                     .padding(4)
                     //combined transition for appearance and disappearance
-                    .transition(AnyTransition.asymmetric(insertion: .identity, removal: .opacity).animation(.easeInOut(duration: 5))  )
+                    .transition(AnyTransition.asymmetric(insertion: .identity, removal: .scale).animation(.easeInOut(duration: 0.5))  )
+                    .zIndex(zIndex(of: card))
                     //.transition(AnyTransition.scale.animation(Animation.easeInOut(duration: 2)))
                     .onTapGesture {
                         withAnimation{
@@ -57,6 +72,17 @@ struct EmojiMemoryGameView: View {
         
     }
     
+    private func dealAnimation(for card: EmojiMemoryGame.Card) -> Animation {
+        var delay:Double = 0.0
+        let cards = gameViewModel.cards
+        
+        if let index = cards.firstIndex(where: {$0.id == card.id}) {
+            delay = Double(index) * (CardConstants.totalDealDuration / Double(cards.count))
+        }
+        
+        return Animation.easeInOut(duration: CardConstants.dealDuration).delay(delay)
+    }
+    
     var deckBody: some View {
         /*
          When dealt set contains the id of every card then the
@@ -67,14 +93,15 @@ struct EmojiMemoryGameView: View {
             ForEach (gameViewModel.cards.filter(isUndeal)) { card in
                 CardView(card: card)
                     .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
-                    .transition(AnyTransition.asymmetric(insertion: .identity, removal: .opacity).animation(.easeInOut(duration: 5))  )
+                    .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .identity).animation(.easeInOut(duration: 0.5))  )
+                    .zIndex(zIndex(of: card))
             }
         }
         .frame(width: CardConstants.undealtWidth,height: CardConstants.undealtHeight)
         .foregroundColor(CardConstants.color)
         .onTapGesture {
-            withAnimation(.easeInOut(duration: 3)){
-                for card in gameViewModel.cards {
+            for card in gameViewModel.cards {
+                withAnimation(dealAnimation(for: card)){
                     deal(card)
                 }
             }
@@ -85,6 +112,15 @@ struct EmojiMemoryGameView: View {
         Button("Shuffle"){
             withAnimation{
                 gameViewModel.shuffle()
+            }
+        }
+    }
+    
+    var reset: some View {
+        Button("Reset"){
+            withAnimation{
+                dealt = []
+                gameViewModel.reset()
             }
         }
     }

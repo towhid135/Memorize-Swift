@@ -5,7 +5,7 @@ class EmojiMemoryGame:ObservableObject {
     typealias Card = MemoryGame<String>.Card
     private static var emojis:[String] = ["🛵","🚗","🚀","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛺","🚔","🚍","🚲","🛴","🚖","🚡","🚠","🚞" ]
     private static func createMemoryGame() -> MemoryGame<String> {
-        MemoryGame<String>(numberOfPairsOfCards: 10){ pairIndex in
+        MemoryGame<String>(numberOfPairsOfCards: 6){ pairIndex in
             emojis[pairIndex]
         }
     }
@@ -22,5 +22,12 @@ class EmojiMemoryGame:ObservableObject {
     }
     func shuffle() {
         model.shuffle()
+    }
+    
+    func reset(){
+        /*
+         Re-creating the model will re-build the body of the view
+         */
+        model = EmojiMemoryGame.createMemoryGame()
     }
 }
